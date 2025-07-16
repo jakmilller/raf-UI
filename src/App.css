@@ -1,0 +1,138 @@
+/* General Body and Font Styling */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Oxygen',
+    'Ubuntu', Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f0f2f5;
+  color: #1c1e21;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Header Styling */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #dddfe2;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 65px;
+  flex-shrink: 0;
+}
+
+.app-header h1 {
+  font-size: 1.5em;
+  color: #333;
+  margin: 0;
+}
+
+.connection-status {
+  font-size: 0.9em;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 15px;
+}
+
+.connection-status.connected {
+  color: #31a24c;
+  background-color: #e3f3e6;
+}
+
+.connection-status.disconnected {
+  color: #f02849;
+  background-color: #fde9ec;
+}
+
+/* Main Content Layout */
+.main-container {
+  display: flex;
+  flex-grow: 1;
+  padding: 20px 40px;
+  gap: 20px;
+  overflow: hidden; /* Prevent scrolling on main container */
+}
+
+/* Left and Right Panels */
+.left-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.right-panel {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Card Styling */
+.info-card, .image-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+.info-card h2, .image-card h2 {
+  font-size: 1.1em;
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #606770;
+  border-bottom: 1px solid #e9ebee;
+  padding-bottom: 10px;
+}
+
+/* Specific Display Text Styling */
+.state-display, .item-display, .queue-display {
+  font-size: 1.4em;
+  font-weight: 600;
+  color: #1c1e21;
+  background-color: #f0f2f5;
+  padding: 20px;
+  border-radius: 6px;
+  text-align: center;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-display { color: #0064d1; }
+.queue-display { color: #6d4c41; font-size: 1.2em; }
+
+
+/* Image Display Styling */
+.image-card {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.image-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Use contain to see the whole image without stretching */
+  border-radius: 6px;
+  min-height: 0; /* Important for flexbox shrinking */
+}
+
+.placeholder-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f2f5;
+  border-radius: 6px;
+  color: #8a8d91;
+  font-size: 1.2em;
+}
