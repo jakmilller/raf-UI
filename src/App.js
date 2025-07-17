@@ -36,12 +36,30 @@ function App() {
     const queueListener = new ROSLIB.Topic({ ros, name: '/command_queue', messageType: 'std_msgs/msg/String' });
     queueListener.subscribe(message => setQueue(message.data));
 
-    // Subscriber for Segmented Image
-    const imageListener = new ROSLIB.Topic({ ros, name: '/segmented_image', messageType: 'sensor_msgs/msg/Image' });
+    // Subscriber for Segmented Image - FIXED FOR COMPRESSED IMAGES
+    const imageListener = new ROSLIB.Topic({ 
+      ros, 
+      name: '/segmented_image', 
+      messageType: 'sensor_msgs/msg/CompressedImage'  // Changed from Image to CompressedImage
+    });
+    
     imageListener.subscribe(message => {
-      // For compressed topics, use 'data'. For uncompressed, use 'data' and create the full base64 string.
-      const imageUrl = `data:image/jpeg;base64,${message.data}`;
-      setSegmentedImage(imageUrl);
+      try {
+        console.log('Received image message, data length:', message.data ? message.data.length : 'no data');
+        
+        if (!message.data || message.data.length === 0) {
+          console.error('No image data received');
+          return;
+        }
+        
+        // The data is already base64 encoded! Just use it directly
+        const imageUrl = `data:image/jpeg;base64,${message.data}`;
+        setSegmentedImage(imageUrl);
+        
+        console.log('Image set successfully, base64 length:', message.data.length);
+      } catch (error) {
+        console.error('Error processing image:', error);
+      }
     });
 
     return () => {
@@ -80,7 +98,25 @@ function App() {
           <div className="image-card">
             <h2>Live Perception View</h2>
             {segmentedImage ? (
-              <img src={segmentedImage} alt="Segmented food items" />
+              <div>
+                <img 
+                  src={segmentedImage} 
+                  alt="Segmented food items"
+                  onLoad={() => console.log('Image loaded successfully')}
+                  onError={(e) => {
+                    console.error('Image failed to load:', e);
+                    console.log('Image src length:', segmentedImage ? segmentedImage.length : 'no src');
+                    console.log('Image src preview:', segmentedImage ? segmentedImage.substring(0, 100) : 'no src');
+                  }}
+                  style={{ 
+                    border: '1px solid #ddd',
+                    backgroundColor: '#f9f9f9'
+                  }}
+                />
+                <div style={{ fontSize: '0.8em', color: '#666', marginTop: '5px' }}>
+                  Image data length: {segmentedImage ? segmentedImage.length : 0} characters
+                </div>
+              </div>
             ) : (
               <div className="placeholder-image">
                 <p>Awaiting image from robot...</p>
