@@ -13,6 +13,7 @@ function App() {
   const [servingItem, setServingItem] = useState('None');
   const [queue, setQueue] = useState('Empty');
   const [segmentedImage, setSegmentedImage] = useState(null);
+  const [processingLocked, setProcessingLocked] = useState(false);
 
   useEffect(() => {
     const ros = new ROSLIB.Ros({ url: ROSBRIDGE_URL });
@@ -36,19 +37,25 @@ function App() {
     const queueListener = new ROSLIB.Topic({ ros, name: '/command_queue', messageType: 'std_msgs/msg/String' });
     queueListener.subscribe(message => setQueue(message.data));
 
-    // Subscriber for Segmented Image - FIXED FOR COMPRESSED IMAGES
+    // NEW: Subscriber for Processing Lock Status
+    const lockListener = new ROSLIB.Topic({ ros, name: '/processing_locked', messageType: 'std_msgs/msg/Bool' });
+    lockListener.subscribe(message => setProcessingLocked(message.data));
+
+    // Subscriber for Segmented Image 
     const imageListener = new ROSLIB.Topic({ 
       ros, 
       name: '/segmented_image', 
-      messageType: 'sensor_msgs/msg/CompressedImage'  // Changed from Image to CompressedImage
+      messageType: 'sensor_msgs/msg/CompressedImage'  
     });
     
     imageListener.subscribe(message => {
       try {
         console.log('Received image message, data length:', message.data ? message.data.length : 'no data');
         
+        // FIXED: Check if this is a clear image request (empty data)
         if (!message.data || message.data.length === 0) {
-          console.error('No image data received');
+          console.log('Received clear image request - clearing display');
+          setSegmentedImage(null); // Clear the image
           return;
         }
         
@@ -66,6 +73,7 @@ function App() {
       stateListener.unsubscribe();
       servingListener.unsubscribe();
       queueListener.unsubscribe();
+      lockListener.unsubscribe();
       imageListener.unsubscribe();
       ros.close();
     };
@@ -87,7 +95,15 @@ function App() {
           </div>
           <div className="info-card">
             <h2>Currently Serving</h2>
-            <p className="item-display">{servingItem}</p>
+            <div className={`item-display ${processingLocked ? 'locked' : ''}`}>
+              {servingItem}
+              {processingLocked && (
+                <div className="lock-indicator">
+                  <span className="lock-icon">🔒</span>
+                  <span className="lock-text">Processing - Voice commands will affect next cycle</span>
+                </div>
+              )}
+            </div>
           </div>
           <div className="info-card">
             <h2>Next in Line</h2>
@@ -96,7 +112,7 @@ function App() {
         </div>
         <div className="right-panel">
           <div className="image-card">
-            <h2>Live Perception View</h2>
+            <h2>Identified Item</h2>
             {segmentedImage ? (
               <div>
                 <img 
